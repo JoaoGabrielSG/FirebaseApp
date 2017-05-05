@@ -13,15 +13,38 @@ import FirebaseAuth
 class SweetsTableViewController: UITableViewController {
     
     var dbRef:FIRDatabaseReference!
+    var sweets = [Sweet]()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         dbRef = FIRDatabase.database().reference().child("sweet-items")
+        
+        startObservingDB()
     }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
     }
+    
+    
+    func startObservingDB() {
+        
+        dbRef.observe(.value, with: { (snapshot) in
+            var newSweets = [Sweet]()
+            
+            for sweet in snapshot.children{
+                let sweetObject = Sweet(snapshot: sweet as! FIRDataSnapshot)
+                newSweets.append(sweetObject)
+            }
+            
+            self.sweets = newSweets
+            self.tableView.reloadData()
+            
+        }) { (error) in
+            print("\(error.localizedDescription)")
+        }
+    }
+    
     
     @IBAction func addSweet(_ sender: Any) {
         
@@ -47,11 +70,20 @@ class SweetsTableViewController: UITableViewController {
     // MARK: - Table view data source
 
     override func numberOfSections(in tableView: UITableView) -> Int {
-        return 0
+        return 1
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 0
+        return sweets.count
     }
-
+    
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        
+        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
+        
+        let sweet = sweets[indexPath.row]
+        cell.detailTextLabel?.text = sweet.addedByUser
+        
+        return cell
+    }
 }

@@ -27,19 +27,20 @@ struct Sweet {
         key = snapshot.key
         itemRef = snapshot.ref
         
-        if let sweetContent = snapshot.value(forKey: "content") as? String{
+        let snap = snapshot.value as! [String : AnyObject]
+        
+        if let sweetContent = snap["content"] as? String{
             content = sweetContent
         }else{
             content = ""
         }
-        
-        if let sweetUser = snapshot.value(forKey: "addedByUser") as? String{
+        if let sweetUser = snap["addedByUser"] as? String{
             addedByUser = sweetUser
         }else{
             addedByUser = ""
         }
-    
     }
+    
     
     func toAnyObject() -> [String:AnyObject] {
         return ["content":content as AnyObject, "addedByUser":addedByUser as AnyObject]
