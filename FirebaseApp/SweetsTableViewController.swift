@@ -21,11 +21,62 @@ class SweetsTableViewController: UITableViewController {
         
         startObservingDB()
     }
+    
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        FIRAuth.auth()?.addStateDidChangeListener({ (auth, user) in
+            if let user = user{
+                print("Welcome \(user.email)")
+                self.startObservingDB()
+            }else{
+                print("You need to sign up or login first")
+            }
+        })
+    }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
     }
     
+    @IBAction func loginAndSingUp(_ sender: Any) {
+        
+        let userAlert = UIAlertController(title: "Login/SingUp", message: "Enter email and password", preferredStyle: .alert)
+        userAlert.addTextField { (textfield) in
+            textfield.placeholder = "email"
+        }
+        userAlert.addTextField { (textfield) in
+            textfield.isSecureTextEntry = true
+            textfield.placeholder = "password"
+        }
+        
+        
+        userAlert.addAction(UIAlertAction(title: "Sign in", style: .default, handler: { (action) in
+            let emailTextField = userAlert.textFields?.first
+            let passwordTextfield = userAlert.textFields?.last
+            
+            FIRAuth.auth()?.signIn(withEmail: (emailTextField?.text)!, password: (passwordTextfield?.text)!, completion: { (user, error) in
+                if error != nil{
+                    print(error.debugDescription)
+                }
+            })
+        }))
+        
+            
+        userAlert.addAction(UIAlertAction(title: "Sign up", style: .default, handler: { (action) in
+            let emailTextField = userAlert.textFields?.first
+            let passwordTextfield = userAlert.textFields?.last
+            
+            FIRAuth.auth()?.createUser(withEmail: (emailTextField?.text)!, password: (passwordTextfield?.text)!, completion: { (user, error) in
+                if error != nil{
+                    print(error.debugDescription)
+                }
+            })
+        }))
+        
+        self.present(userAlert, animated: true, completion: nil)
+    }
     
     func startObservingDB() {
         
@@ -82,8 +133,18 @@ class SweetsTableViewController: UITableViewController {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
         
         let sweet = sweets[indexPath.row]
+        
+        cell.textLabel?.text = sweet.content
         cell.detailTextLabel?.text = sweet.addedByUser
         
         return cell
+    }
+    
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete{
+            let sweet = sweets[indexPath.row]
+            
+            sweet.itemRef?.removeValue()
+        }
     }
 }

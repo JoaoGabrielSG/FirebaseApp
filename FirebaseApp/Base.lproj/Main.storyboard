@@ -49,7 +49,11 @@
                         </connections>
                     </tableView>
                     <navigationItem key="navigationItem" title="Fire Swifer" id="niq-3i-m4v">
-                        <barButtonItem key="leftBarButtonItem" title="Login" id="p85-6V-DaY"/>
+                        <barButtonItem key="leftBarButtonItem" title="Login" id="p85-6V-DaY">
+                            <connections>
+                                <action selector="loginAndSingUp:" destination="TMV-Cj-LUn" id="JiB-uw-El6"/>
+                            </connections>
+                        </barButtonItem>
                         <barButtonItem key="rightBarButtonItem" systemItem="add" id="D2H-GL-iON">
                             <connections>
                                 <action selector="addSweet:" destination="TMV-Cj-LUn" id="tlu-hp-E8d"/>
